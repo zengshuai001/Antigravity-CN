@@ -1,0 +1,43 @@
+﻿{
+    "categories":  {
+                       "vs/code":  {
+                                       "startIndex":  26,
+                                       "moduleCount":  4,
+                                       "count":  4,
+                                       "endIndex":  29
+                                   },
+                       "vs/server":  {
+                                         "startIndex":  275,
+                                         "moduleCount":  3,
+                                         "count":  3,
+                                         "endIndex":  277
+                                     },
+                       "vs/workbench":  {
+                                            "startIndex":  278,
+                                            "moduleCount":  1116,
+                                            "count":  1116,
+                                            "endIndex":  1393
+                                        },
+                       "vs/editor":  {
+                                         "startIndex":  30,
+                                         "moduleCount":  125,
+                                         "count":  125,
+                                         "endIndex":  154
+                                     },
+                       "vs/platform":  {
+                                           "startIndex":  155,
+                                           "moduleCount":  120,
+                                           "count":  120,
+                                           "endIndex":  274
+                                       },
+                       "vs/base":  {
+                                       "startIndex":  0,
+                                       "moduleCount":  26,
+                                       "count":  26,
+                                       "endIndex":  25
+                                   }
+                   },
+    "totalKeyGroups":  1394,
+    "extractDate":  "2026-05-20T06:32:03+08:00",
+    "totalMessages":  16567
+}

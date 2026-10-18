@@ -1,0 +1,200 @@
+﻿Accept all
+Accept Step
+Action required
+Active Browser page
+Active Browser pages
+Actual behavior
+Add Comment
+Add context
+Add Custom Model
+Add Model
+Adding link
+Adjusted Graph
+Advanced settings
+After sanitization
+Agent A
+Agent B
+Agent C
+Agent Decides
+Agent Host Address
+Agent Loading
+Agent Manager
+Agent Script
+Agent Script Command Configuration
+Agent State Debug
+Agent Stopped
+All Files
+Allow Globally
+Allow List Terminal Commands
+Allow Once
+Allow options
+Already exists
+Always Allow
+Always Ask
+Always Deny
+Always Proceed
+Always Proceeds
+Always run
+An initializer
+Analyzed content
+Analyzed Task Log
+Analyzing content
+Analyzing Videos
+Android Browser
+Anno Domini
+Anonymous component
+Antigravity Dev
+Antigravity Interactive HTML
+Archive Conversation
+Artifact Comments
+Artifact image
+Artifact Name
+Ask first
+Assert fail
+Assertion Failed
+Assertion failure
+Background Task
+Background Tasks
+Background Terminal Command Output
+Bad response
+Baidu Browser
+Bailing out
+Bang intersect
+Before Christ
+Begin icon
+Binary file
+Blackberry Browser
+Bow Tie Rectangle
+Browser Javascript Execution Policy
+Browser task
+Browser User Profile Path
+Bug Report
+Bypass sandbox
+Cancel step
+Cancel task
+Caps Lock
+Capture screenshot
+Chat History
+Chat Model Metadata
+Checked inbox
+Checking inbox
+Checking key
+Chrome Binary Path
+Circle intersect
+Circle main
+Clear called
+Cleared Count
+Close Folder
+Close search
+Close Settings
+Close Tab
+Close Terminal Tab
+Close Workspace
+Cloud Bang
+Cloud intersect
+Cluster identified
+Code Context Items
+Code Search
+Collapse All
+Com Link
+Command Center
+Command Line
+Comment Right
+Commit Graph
+Communication link
+Complete Onboarding Step
+Complete verification
+Configure Your Editor
+Confirm Browser Interaction
+Confirm Undo
+Confirm Window Reload
+Console Logger
+Console logs
+Conversation History
+Coordinated Universal Time
+Copy command
+Copy File Name
+Copy File Path
+Copy Trajectory ID
+Copying Edges
+Create Capsule
+Created At
+Created outline
+Crossed Circle
+Cumulative Total
+Curly Brace
+Curly Braces
+Curved Trapezoid
+Custom Agents
+Custom configuration
+Customize Global Skills
+Cytoscape ready
+Data loss
+Database storage
+Deadline exceeded
+Debug Mode
+Debug Sidebar
+Default Customizations
+Default Dark Modern
+Default Light Modern
+Defined subagent
+Delete agent
+Delete All Conversations
+Delete artifact
+Delete command
+Delete Conversation
+Delete Permanently
+Delete server
+Deleting Recording methods
+Denied Sites
+Deny List Terminal Commands
+Design Constraint
+Dev Mode
+Direct Access Storage
+Disk storage
+Dismiss error
+Divided Process
+Divided Rectangle
+Doc rendered
+Document Answers
+Double Circle
+Double subscript
+Double superscript
+Download Agent State Debug Diagnostics
+Downloading Update
+Edge data
+Edit comment
+Edit Config
+Edit Conversation Title
+Edit Custom Model
+Edit Model
+Editor Settings
+Editor Window
+Enable Browser Tools
+Enable Notifications
+Enable Overages
+Enable Recording
+Enable Shell Integration
+Enable Telemetry
+Enable Terminal Sandbox
+Enable Workspace API
+Enlarged image
+Enlarged media
+Error parsing
+Event fired
+Execute Javascript policy
+Execution finished
+Expand All
+Expand breakdown
+Expected atom
+Expected behavior
+Expected character
+Expected disjunction
+Expected substring
+Exploding node
+Explosion Bang
+Export artifact
+Extracting node
+Extraction process
+Failed Optimization Warnings
+Failed precondition

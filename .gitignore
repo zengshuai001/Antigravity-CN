@@ -1,0 +1,39 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+bg_install.log
+shouhu.log
+
+# Local privacy / snapshot caches
+pending.json
+misses.json
+**/pending.json
+**/misses.json
+extracted_asar/
+scratch/
+
+# Operating System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# IDE & Editor configs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+.gemini/

@@ -1,0 +1,33 @@
+name: Validate Translations
+
+on:
+  push:
+    paths:
+      - 'translations/**'
+  pull_request:
+    paths:
+      - 'translations/**'
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate translation files
+        shell: pwsh
+        run: |
+          .\scripts\validate.ps1
+
+      - name: Update badge
+        if: success()
+        shell: pwsh
+        run: |
+          $orig = Get-Content "source\nls.messages.original.json" -Raw | ConvertFrom-Json
+          $trans = Get-Content "translations\nls.messages.zh-CN.json" -Raw | ConvertFrom-Json
+          $untranslated = 0
+          for ($i = 0; $i -lt $trans.Count; $i++) {
+            if ($trans[$i] -eq $orig[$i]) { $untranslated++ }
+          }
+          $pct = [math]::Round(($trans.Count - $untranslated) / $trans.Count * 100, 0)
+          Write-Host "Translation progress: $pct%"
