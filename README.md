@@ -19,9 +19,10 @@
 - 🚀 **小白友好，一键操作**：Windows 用户双击 `.bat`，macOS 用户双击 `.command` / 运行 `.sh`，全程无需配置复杂环境。
 - 📦 **零外部依赖**：基于原生 Python 3 标准库打造，无需安装 Node.js、npm、asar 工具包或任何第三方 Python 库（纯净轻量）。
 - 🛡️ **安全自动备份**：首次注入汉化前自动备份原始纯净文件（`.bak`），杜绝重复覆盖，保证随时可完美回滚。
+- 🔒 **防失效锁定（后台更新拦截）**：一键管理官方后台自动更新配置（`app-update.yml`），汉化后可一键锁定当前版本，彻底防止谷歌静默下载更新覆盖汉化文件导致失效！
 - 🔄 **一键还原英文**：提供独立的一键还原脚本，随时随地秒级切回官方原版英文。
 - 🎯 **全版本架构自适应**：
-  - **Antigravity 2.0+**（含 2.0.x ~ 2.24.x+ 最新版）：纯 Python 解析 Electron `app.asar`，双上下文注入 DOM 动态翻译引擎并重打包，自动修正 SHA256 完整性哈希。
+  - **Antigravity 2.0+**（含 2.0.x ~ 2.25.x+ 最新版）：纯 Python 解析 Electron `app.asar`，支持原位流式热注入，双上下文注入 DOM 动态翻译引擎并重打包，自动修正 SHA256 完整性哈希。
   - **Antigravity 1.x**：自动注入 `workbench.html` 并同步更新 `product.json` 校验和，消除“安装受损”弹窗警告。
 - 🔍 **路径完全动态化**：自动通过系统环境变量（`%LOCALAPPDATA%`、`%ProgramFiles%`、`$HOME` 等）与运行中进程智能定位安装目录，支持任意盘符与自定义安装路径。
 - ⚠️ **版本比对与防白屏守护**：内置版本智能校验机制，如果检测到用户的 Antigravity 版本高于汉化包已适配版本，会自动弹出系统级警告提示，防止小白因官方架构大更新导致白屏。
@@ -90,6 +91,12 @@ python auto_localize.py --apply
 
 # 一键还原回滚至官方原版英文状态
 python auto_localize.py --restore
+
+# 锁定当前版本（禁用后台自动更新，防止官方静默更新导致汉化失效）
+python auto_localize.py --disable-update
+
+# 恢复官方后台自动更新
+python auto_localize.py --enable-update
 
 # 手动指定 Antigravity 的安装目录（适合特殊自定义目录）
 python auto_localize.py --install-dir "D:\CustomPath\Antigravity"

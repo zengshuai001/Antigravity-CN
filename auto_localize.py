@@ -228,10 +228,29 @@ def safe_replace_file(src_tmp, dst_file, max_retries=15, delay=0.6):
         except (PermissionError, OSError):
             time.sleep(delay)
     
-    # Fallback to copy and remove
+    # Fallback to direct in-place stream write (works on Windows even when file is locked for deletion)
+    try:
+        with open(src_tmp, 'rb') as sf, open(dst_file, 'r+b') as df:
+            data = sf.read()
+            df.seek(0)
+            df.write(data)
+            df.truncate(len(data))
+            df.flush()
+        try:
+            os.remove(src_tmp)
+        except Exception:
+            pass
+        return True
+    except Exception:
+        pass
+
+    # Final fallback to copy and remove
     try:
         shutil.copy2(src_tmp, dst_file)
-        os.remove(src_tmp)
+        try:
+            os.remove(src_tmp)
+        except Exception:
+            pass
         return True
     except Exception as e:
         raise PermissionError(f"无法替换目标文件 {dst_file}，文件可能被系统占用: {e}")
@@ -316,8 +335,8 @@ def generate_injection_payload():
 # Version Check & Compatibility Guard
 # ---------------------------------------------------------------------------
 
-MAX_TESTED_VERSION = "2.24.x"
-MAX_SUPPORTED_TUPLE = (2, 24, 99)
+MAX_TESTED_VERSION = "2.25.x"
+MAX_SUPPORTED_TUPLE = (2, 25, 99)
 
 def get_antigravity_version(install_path):
     """
@@ -699,6 +718,38 @@ def launch_antigravity(install_path):
         print(f"[!] 启动失败: {e}，请手动点击快捷方式打开 Antigravity。")
 
 # ---------------------------------------------------------------------------
+# Updater Management (Prevent Google Auto-Update from Overwriting Localization)
+# ---------------------------------------------------------------------------
+
+def toggle_auto_updater(install_path, disable=True):
+    resources_dir = os.path.join(install_path, "resources") if sys.platform != "darwin" else os.path.join(install_path, "Contents", "Resources")
+    yml = os.path.join(resources_dir, "app-update.yml")
+    yml_dis = yml + ".disabled"
+    if disable:
+        if os.path.exists(yml):
+            shutil.move(yml, yml_dis)
+            print("[+] 已成功禁用后台自动更新！(已重命名 app-update.yml -> app-update.yml.disabled)")
+            print("    当前汉化版本已锁定，谷歌将不会静默下载新版本覆盖您的汉化。")
+            return True
+        elif os.path.exists(yml_dis):
+            print("[i] 后台自动更新已被禁用，无需重复操作。")
+            return True
+        else:
+            print("[!] 未找到 app-update.yml，可能已被移除。")
+            return False
+    else:
+        if os.path.exists(yml_dis):
+            shutil.move(yml_dis, yml)
+            print("[+] 已恢复官方后台自动更新。(app-update.yml 已还原)")
+            return True
+        elif os.path.exists(yml):
+            print("[i] 官方自动更新处于启用状态。")
+            return True
+        else:
+            print("[!] 未找到备份的更新配置文件。")
+            return False
+
+# ---------------------------------------------------------------------------
 # Interactive Menu
 # ---------------------------------------------------------------------------
 
@@ -706,14 +757,19 @@ def interactive_menu(install_path, arch, info):
     while True:
         ver_str, _ = get_antigravity_version(install_path)
         print("\n" + "=" * 60)
-        print("     Google Antigravity 界面中文本地化工具 (通用开源版)")
+        print("     Google Antigravity 界面中文本地化工具 (通用开源版 v2.1)")
         print("=" * 60)
         print(f"安装路径: {install_path}")
         print(f"架构版本: {arch}")
         print(f"软件版本: {ver_str} (汉化包适配测试: <= {MAX_TESTED_VERSION})")
 
         is_running = check_process_running()
-        print(f"运行状态: {'【运行中 - 文件已锁定】' if is_running else '【已完全退出 - 文件可用】'}")
+        print(f"运行状态: {'【运行中 - 支持免杀热注入】' if is_running else '【已完全退出 - 文件可用】'}")
+
+        resources_dir = info.get('resources_dir', '')
+        update_yml = os.path.join(resources_dir, "app-update.yml")
+        update_disabled = os.path.exists(update_yml + ".disabled")
+        print(f"更新锁定: {'【已锁定 - 自动更新已禁用 (防失效)】' if update_disabled else '【未锁定 - 官方可能静默更新覆盖】'}")
 
         is_injected = False
         has_bak = False
@@ -734,14 +790,16 @@ def interactive_menu(install_path, arch, info):
                 pass
 
         print(f"原版备份: {'【已安全备份】' if has_bak else '【未备份（将在首次汉化时自动创建）】'}")
-        print(f"汉化状态: {'【已汉化】' if is_injected else '【官方原版英文】'}")
+        print(f"汉化状态: {'【已汉化 (含最新二级栏目与小字补丁)】' if is_injected else '【官方原版英文】'}")
         print("-" * 60)
         print("请选择操作：")
-        print("  [1] 一键执行中文汉化注入（若运行中将自动关闭并重启，自动备份）")
-        print("  [2] 一键还原回滚为官方原版英文")
-        print("  [3] 仅备份官方原版文件")
-        print("  [4] 刷新并查看当前状态")
-        print("  [5] 退出")
+        print("  [1] 一键执行全套中文汉化注入 (推荐)")
+        print("  [2] 锁定当前版本 (禁用后台自动更新，防止官方再次覆盖)")
+        print("  [3] 恢复官方后台自动更新")
+        print("  [4] 一键还原回滚为官方原版英文")
+        print("  [5] 仅备份官方原版文件")
+        print("  [6] 刷新并查看当前状态")
+        print("  [7] 退出")
         print("-" * 60)
 
         try:
@@ -755,8 +813,6 @@ def interactive_menu(install_path, arch, info):
         if choice == "1":
             if not verify_version_compatibility(install_path):
                 continue
-            if check_process_running():
-                kill_antigravity()
             try:
                 if arch == '2.0+':
                     apply_2x_localization(info)
@@ -766,19 +822,43 @@ def interactive_menu(install_path, arch, info):
                 print("\n========================================================")
                 print("  [SUCCESS] 恭喜！Antigravity 界面中文本地化注入成功！")
                 print("========================================================")
-                try:
-                    ask_restart = input("是否立即重新启动 Antigravity？(Y/n): ").strip().lower()
-                except (EOFError, KeyboardInterrupt):
-                    ask_restart = "y"
-                if ask_restart in ['', 'y', 'yes']:
-                    launch_antigravity(install_path)
+                print("[*] 提示：若 Antigravity 正在运行，按 Ctrl+R 或重启应用即可呈现完整中文。")
+                if not update_disabled:
+                    try:
+                        ask_lock = input("是否同时锁定当前版本以防止谷歌静默更新覆盖？(Y/n): ").strip().lower()
+                    except (EOFError, KeyboardInterrupt):
+                        ask_lock = "y"
+                    if ask_lock in ['', 'y', 'yes']:
+                        toggle_auto_updater(install_path, disable=True)
+
+                if check_process_running():
+                    try:
+                        ask_restart = input("是否立即重新启动 Antigravity 查看效果？(Y/n): ").strip().lower()
+                    except (EOFError, KeyboardInterrupt):
+                        ask_restart = "n"
+                    if ask_restart in ['', 'y', 'yes']:
+                        kill_antigravity()
+                        launch_antigravity(install_path)
             except Exception as e:
                 print(f"[-] 汉化失败: {e}")
             break
 
         elif choice == "2":
+            toggle_auto_updater(install_path, disable=True)
+            continue
+
+        elif choice == "3":
+            toggle_auto_updater(install_path, disable=False)
+            continue
+
+        elif choice == "4":
             if check_process_running():
-                kill_antigravity()
+                try:
+                    ask_kill = input("还原需关闭 Antigravity，是否继续？(Y/n): ").strip().lower()
+                except (EOFError, KeyboardInterrupt):
+                    ask_kill = "y"
+                if ask_kill in ['', 'y', 'yes']:
+                    kill_antigravity()
             if arch == '2.0+':
                 restore_2x_localization(info)
             else:
@@ -791,14 +871,14 @@ def interactive_menu(install_path, arch, info):
                 launch_antigravity(install_path)
             break
 
-        elif choice == "3":
+        elif choice == "5":
             backup_localization(info)
             continue
 
-        elif choice == "4":
+        elif choice == "6":
             continue
 
-        elif choice == "5":
+        elif choice == "7":
             print("已退出。")
             break
         else:
@@ -809,12 +889,14 @@ def interactive_menu(install_path, arch, info):
 # ---------------------------------------------------------------------------
 
 def main():
-    parser = argparse.ArgumentParser(description="Google Antigravity 中文本地化（汉化）通用工具")
+    parser = argparse.ArgumentParser(description="Google Antigravity 中文本地化（汉化）通用工具 v2.1")
     parser.add_argument("--install-dir", help="指定 Antigravity 安装根目录")
-    parser.add_argument("--apply", action="store_true", help="非交互模式直接执行汉化注入")
+    parser.add_argument("--apply", "-a", action="store_true", help="直接执行全套中文汉化注入")
     parser.add_argument("--backup", action="store_true", help="仅执行原版文件备份")
-    parser.add_argument("--restore", action="store_true", help="一键还原回滚至官方原版英文状态")
-    parser.add_argument("--status", action="store_true", help="探测并输出当前环境与汉化状态")
+    parser.add_argument("--restore", "-r", action="store_true", help="一键还原回滚至官方原版英文状态")
+    parser.add_argument("--disable-update", action="store_true", help="禁用后台自动更新以防汉化被覆盖")
+    parser.add_argument("--enable-update", action="store_true", help="恢复官方后台自动更新")
+    parser.add_argument("--status", "-s", action="store_true", help="探测并输出当前环境与汉化状态")
     parser.add_argument("--force", action="store_true", help="即使检测到进程运行或高版本也强行尝试修改")
     args = parser.parse_args()
 
@@ -829,6 +911,14 @@ def main():
         print(f"[-] 错误: 无法识别当前安装目录的文件架构: {install_path}")
         sys.exit(1)
 
+    if args.disable_update:
+        toggle_auto_updater(install_path, disable=True)
+        return
+
+    if args.enable_update:
+        toggle_auto_updater(install_path, disable=False)
+        return
+
     # Status check
     if args.status:
         ver_str, _ = get_antigravity_version(install_path)
@@ -838,6 +928,9 @@ def main():
         print(f"[i] 架构版本: {arch}")
         print(f"[i] 软件版本: {ver_str} (汉化包适配测试: <= {MAX_TESTED_VERSION})")
         print(f"[i] 进程运行状态: {'运行中' if is_running else '已退出'}")
+        resources_dir = info.get('resources_dir', '')
+        update_yml = os.path.join(resources_dir, "app-update.yml")
+        print(f"[i] 自动更新状态: {'已禁用 (锁定当前汉化)' if os.path.exists(update_yml + '.disabled') else '启用中 (官方可能覆盖)'}")
         if arch == '2.0+':
             has_bak = os.path.exists(info['asar_bak'])
             print(f"[i] 原版备份状态: {'已备份 (' + info['asar_bak'] + ')' if has_bak else '未备份'}")
@@ -880,10 +973,15 @@ def main():
             sys.exit(1)
         if check_process_running() and not args.force:
             kill_antigravity()
-        if arch == '2.0+':
-            apply_2x_localization(info)
-        else:
-            apply_1x_localization(info)
+        try:
+            if arch == '2.0+':
+                apply_2x_localization(info)
+            else:
+                apply_1x_localization(info)
+            print("[+] 汉化注入完成！")
+        except Exception as e:
+            print(f"[-] 汉化失败: {e}")
+            sys.exit(1)
         return
 
     # Default interactive menu

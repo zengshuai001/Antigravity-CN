@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 >nul
+set PYTHONIOENCODING=utf-8
 title Google Antigravity 中文本地化一键启动器
 cd /d "%~dp0"
 

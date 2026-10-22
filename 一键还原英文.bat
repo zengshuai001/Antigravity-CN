@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 >nul
+set PYTHONIOENCODING=utf-8
 title Google Antigravity 一键还原原版英文
 cd /d "%~dp0"
 
